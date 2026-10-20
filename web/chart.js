@@ -107,7 +107,7 @@
       else zoom(button.dataset.chart === "in" ? .7 : 1 / .7);
     }
     function wheel(event) { event.preventDefault(); const r = ratios(event); zoom(event.deltaY < 0 ? .82 : 1 / .82, r.x, r.y); }
-    function down(event) { if (event.button !== 0) return; drag = { x: event.clientX, y: event.clientY, view: { ...view } }; svg.setPointerCapture(event.pointerId); svg.classList.add("is-dragging"); }
+    function down(event) { if (event.button !== 0) return; move(event); drag = { x: event.clientX, y: event.clientY, view: { ...view } }; svg.setPointerCapture(event.pointerId); svg.classList.add("is-dragging"); }
     function move(event) {
       const d = dimensions();
       if (drag) {
