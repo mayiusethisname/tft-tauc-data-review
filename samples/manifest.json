@@ -1,0 +1,199 @@
+{
+  "kind": "measured_numeric_excerpts",
+  "files": [
+    {
+      "asset": "asi20_02.csv",
+      "source_name": "aSi2002.DAT",
+      "source_section": "MOBILITY",
+      "point_count": 201,
+      "sha256": "561397a6f967aa369551afd97d677d9a2c364917657844257e34fb102681cd57",
+      "numeric_changes": "none",
+      "mapping": "VD -> VGS and VDS; ID -> IDS",
+      "source_sha256": "8d277d7ceacb252e4430c41c27d5bbf946c3c4067d6cb4fec7fe0ba29d84ba17",
+      "verification": {
+        "method": "independent signed numeric-pair comparison",
+        "differences": 0,
+        "verified_on": "2026-10-21",
+        "tool": "tools/verify_sources.py"
+      }
+    },
+    {
+      "asset": "asi20_06.csv",
+      "source_name": "aSi2006.DAT",
+      "source_section": "MOBILITY",
+      "point_count": 201,
+      "sha256": "64160639942bfe7f18d2badf99bc5365549de5e23e9bd9d0cc48861a5317a8d2",
+      "numeric_changes": "none",
+      "mapping": "VD -> VGS and VDS; ID -> IDS",
+      "source_sha256": "7f1034d241bfa525335c2adc0c2575b234e4438720f2e57d582018f403507015",
+      "verification": {
+        "method": "independent signed numeric-pair comparison",
+        "differences": 0,
+        "verified_on": "2026-10-21",
+        "tool": "tools/verify_sources.py"
+      }
+    },
+    {
+      "asset": "asi20_20.csv",
+      "source_name": "aSi2020.DAT",
+      "source_section": "MOBILITY",
+      "point_count": 201,
+      "sha256": "b52e15ab46f82ed605445c549bba806ddc632c07dd43199a20a6ca945a784dba",
+      "numeric_changes": "none",
+      "mapping": "VD -> VGS and VDS; ID -> IDS",
+      "source_sha256": "994be760e26deeed16ce038173af3455c95ca280d9dcbfd9a301ae3840668eda",
+      "verification": {
+        "method": "independent signed numeric-pair comparison",
+        "differences": 0,
+        "verified_on": "2026-10-21",
+        "tool": "tools/verify_sources.py"
+      }
+    },
+    {
+      "asset": "igzo20_02.csv",
+      "source_name": "IGZO2002.csv",
+      "source_section": "MOBILITY",
+      "point_count": 201,
+      "sha256": "48b527a93ac80942baabbb2f39f54ccdc84f9b71fc75c4341607847c9cb96752",
+      "numeric_changes": "none",
+      "mapping": "VD -> VGS and VDS; ID -> IDS",
+      "source_sha256": "5b92bcf6026f20d6b678c7d902c99584521e38a704773310b0cb26f08d751a9c",
+      "verification": {
+        "method": "independent signed numeric-pair comparison",
+        "differences": 0,
+        "verified_on": "2026-10-21",
+        "tool": "tools/verify_sources.py"
+      }
+    },
+    {
+      "asset": "igzo20_04.csv",
+      "source_name": "IGZO2004.csv",
+      "source_section": "MOBILITY",
+      "point_count": 201,
+      "sha256": "7f5d99ebd92dd23ac826c02b2493d059e42ace168ff848d09678e6a7dd2fa27d",
+      "numeric_changes": "none",
+      "mapping": "VD -> VGS and VDS; ID -> IDS",
+      "source_sha256": "e46cc9daac52291d25d2cfc7b62e9101beb6674b551d234b280cfd7719d062d5",
+      "verification": {
+        "method": "independent signed numeric-pair comparison",
+        "differences": 0,
+        "verified_on": "2026-10-21",
+        "tool": "tools/verify_sources.py"
+      }
+    },
+    {
+      "asset": "igzo20_10.csv",
+      "source_name": "IGZO2010.csv",
+      "source_section": "MOBILITY",
+      "point_count": 201,
+      "sha256": "557218832a1fcf648de87ba8c8d3dabb364a7ad573a0a86f1e21d9308dc80658",
+      "numeric_changes": "none",
+      "mapping": "VD -> VGS and VDS; ID -> IDS",
+      "source_sha256": "571752e1cb2bd245323f44666f5cf0e0a1224f0e04707f333f054bb7e4d48b02",
+      "verification": {
+        "method": "independent signed numeric-pair comparison",
+        "differences": 0,
+        "verified_on": "2026-10-21",
+        "tool": "tools/verify_sources.py"
+      }
+    },
+    {
+      "asset": "ltps10_02.csv",
+      "source_name": "LTPS1002.DAT",
+      "source_section": "MOBILITY",
+      "point_count": 201,
+      "sha256": "7b410590c2f040a3ed049b95301d03c9104745e034324a7a79b5c342dc27f3c0",
+      "numeric_changes": "none",
+      "mapping": "VD -> VGS and VDS; ID -> IDS",
+      "source_sha256": "15527aaff5d97d469e426ea832ac4faf35d271ea9a429f0af7ff71f0c5bd437b",
+      "verification": {
+        "method": "independent signed numeric-pair comparison",
+        "differences": 0,
+        "verified_on": "2026-10-21",
+        "tool": "tools/verify_sources.py"
+      }
+    },
+    {
+      "asset": "ltps10_05.csv",
+      "source_name": "LTPS1005.DAT",
+      "source_section": "MOBILITY",
+      "point_count": 201,
+      "sha256": "1f763c02d0c24d3feb2d5d9ce44fdeba2ad29083496e1418f96a1d78dbe2548a",
+      "numeric_changes": "none",
+      "mapping": "VD -> VGS and VDS; ID -> IDS",
+      "source_sha256": "9b4528bc92a1695d542667e95fdec5ff7747aeb032810990d10edaab50f03bd8",
+      "verification": {
+        "method": "independent signed numeric-pair comparison",
+        "differences": 0,
+        "verified_on": "2026-10-21",
+        "tool": "tools/verify_sources.py"
+      }
+    },
+    {
+      "asset": "ltps10_10.csv",
+      "source_name": "LTPS1010.DAT",
+      "source_section": "MOBILITY",
+      "point_count": 201,
+      "sha256": "3e91facfd45d352b799b330f642fbf23e05a154a4331fe39b466e14c120b3c10",
+      "numeric_changes": "none",
+      "mapping": "VD -> VGS and VDS; ID -> IDS",
+      "source_sha256": "1c5fd96b7d820dc51eeae0eb5ad83919928c483c7575d04c6c8441677b24594e",
+      "verification": {
+        "method": "independent signed numeric-pair comparison",
+        "differences": 0,
+        "verified_on": "2026-10-21",
+        "tool": "tools/verify_sources.py"
+      }
+    },
+    {
+      "asset": "a_si_uvvis.csv",
+      "source_name": "a-Si.csv",
+      "source_section": "XYDATA",
+      "point_count": 4001,
+      "sha256": "0860807403137cf3eb45fc21893b4a25c63edd29b5eb3092251a1b647aff921d",
+      "numeric_changes": "none",
+      "mapping": "wavelength_nm, transmittance_percent; instrument/axis metadata only",
+      "source_sha256": "9763ee978cf1f55312b82638ec64a1c3d71e501f198a49661aa15167bcdbe0e8",
+      "verification": {
+        "method": "independent signed numeric-pair comparison",
+        "differences": 0,
+        "verified_on": "2026-10-21",
+        "tool": "tools/verify_sources.py"
+      }
+    },
+    {
+      "asset": "a_igzo_uvvis.csv",
+      "source_name": "a-IGZO.csv",
+      "source_section": "XYDATA",
+      "point_count": 4001,
+      "sha256": "a4059c521b7ea95605d4d04c2871177dd94dc094f39eaab963bb9669237cea79",
+      "numeric_changes": "none",
+      "mapping": "wavelength_nm, transmittance_percent; instrument/axis metadata only",
+      "source_sha256": "48e28f708ea9dd6a37f7ae3fc488504275335337122571319cce325ca6242308",
+      "verification": {
+        "method": "independent signed numeric-pair comparison",
+        "differences": 0,
+        "verified_on": "2026-10-21",
+        "tool": "tools/verify_sources.py"
+      }
+    },
+    {
+      "asset": "poly_si_uvvis.csv",
+      "source_name": "poly-Si.csv",
+      "source_section": "XYDATA",
+      "point_count": 4001,
+      "sha256": "ab1928071dabee7af8a6ffc9d69fbe09631728fc53aa6ca378897963307a9157",
+      "numeric_changes": "none",
+      "mapping": "wavelength_nm, transmittance_percent; instrument/axis metadata only",
+      "source_sha256": "ce04b9f6af7828f0f40a35440142f3a727e686fed9ec57e72c3b56f397be8c88",
+      "verification": {
+        "method": "independent signed numeric-pair comparison",
+        "differences": 0,
+        "verified_on": "2026-10-21",
+        "tool": "tools/verify_sources.py"
+      }
+    }
+  ],
+  "version": "portfolio-3.1",
+  "derivation": "Signed measurements preserved; sqrt(abs(IDS)) is applied only during TFT analysis."
+}

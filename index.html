@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f4f7fb" />
+  <meta name="description" content="실측 TFT·UV–Vis 자료와 오류 주입 예제로 따라가는 측정 데이터 분석 작업 공간" />
+  <title>TFT · Tauc 실험 데이터 리뷰</title>
+  <link rel="stylesheet" href="web/styles.css" />
+  <link rel="stylesheet" href="web/workspace.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">∿</span><span>실험 데이터 리뷰<small>TFT · Tauc</small></span></a>
+    <nav aria-label="페이지 메뉴"><a href="#choose">분석 시작</a><a href="#project">프로젝트 이야기</a></nav>
+    <span class="version">Portfolio 3.1</span>
+  </header>
+  <main class="page-width" id="top">
+    <section class="intro">
+      <p class="eyebrow">MEASUREMENT WORKSPACE</p>
+      <h1>측정값부터, 선택한 이유까지.</h1>
+      <p>TFT·UV–Vis 실험자료를 검토하며 만든 분석 도구예요.<br class="desktop-break" /> 실측 자료와 오류를 넣은 예제로, 파일 점검부터 구간 비교까지 따라가 보세요.</p>
+      <div class="intro-caption"><span class="dot"></span> TFT 실측 9개 · UV–Vis 실측 3개 · 위치를 짚어보는 오류 예제</div>
+    </section>
+
+    <nav class="workflow" aria-label="분석 순서">
+      <a href="#choose" data-step="1" class="is-current" aria-current="step"><span class="step-number">1</span><span><strong>파일 고르기</strong><small>실측 예제 또는 내 파일</small></span><span class="step-arrow" aria-hidden="true">→</span></a>
+      <a href="#analysis" data-step="2"><span class="step-number">2</span><span><strong>분석과 근거 보기</strong><small>점검 의견 · 그래프 · 후보 비교</small></span><span class="step-arrow" aria-hidden="true">→</span></a>
+      <a href="#review" data-step="3"><span class="step-number">3</span><span><strong>검토 기록 남기기</strong><small>선택한 구간과 메모 저장</small></span></a>
+    </nav>
+
+    <section class="stage" id="choose" aria-labelledby="choose-title">
+      <div class="stage-heading"><div><p class="step-caption">STEP 1 · INPUT</p><h2 id="choose-title">분석할 자료를 골라주세요</h2><p>처음이라면 실측 사례를 먼저 열고, 오류 주입 사례와 비교해 보세요.</p></div><span class="quiet-tag" id="sample-count">예제 불러오는 중</span></div>
+      <div class="domain-tabs" role="tablist" aria-label="분석 종류">
+        <button id="tab-tft" class="domain-tab is-active" data-domain="tft" type="button" role="tab" aria-selected="true" aria-controls="domain-panel"><span class="tab-symbol">T</span><span><strong>TFT 전기 특성</strong><small>전류·전압 · 포화 구간</small></span></button>
+        <button id="tab-tauc" class="domain-tab" data-domain="tauc" type="button" role="tab" aria-selected="false" aria-controls="domain-panel"><span class="tab-symbol">λ</span><span><strong>Tauc 광학 분석</strong><small>투과율 · 광학 밴드갭</small></span></button>
+      </div>
+      <div role="tabpanel" id="domain-panel" aria-labelledby="tab-tft">
+        <div class="material-bar" id="material-list" aria-label="물질 선택"></div>
+        <div class="sample-section-heading"><h3>실측 파일 고르기</h3><p id="material-description">물질마다 채널 크기가 다른 실측 파일 3개를 준비했어요.</p></div>
+        <div class="sample-grid" id="sample-list" aria-live="polite"></div>
+        <details class="fault-examples" id="fault-examples"><summary><span><strong>문제가 있는 파일도 살펴볼까요?</strong><small>같은 실측 자료에 오류를 넣어 비교해요.</small></span><span id="fault-count"></span></summary><div class="sample-grid" id="fault-list"></div></details>
+        <p class="sample-help"><strong>이 파일 분석하기</strong>는 이 화면에서 분석을 시작해요. <strong>CSV 내려받기</strong>는 같은 파일을 내 컴퓨터에 저장해요.</p>
+      </div>
+      <details class="upload-box" id="upload-box">
+        <summary><span class="upload-plus" aria-hidden="true">＋</span><span><strong>내 파일로 분석하기</strong><small id="upload-format">DAT 또는 CSV · 파일당 3 MB 이하</small></span><span class="summary-arrow" aria-hidden="true">⌄</span></summary>
+        <form id="upload-form">
+          <p class="form-guide">측정 조건을 확인한 뒤 파일을 선택해 주세요. 예제에서 내려받은 CSV도 넣어볼 수 있어요.</p>
+          <div class="field-grid" id="tft-fields">
+            <label>재료<select id="tft-material"><option value="a-IGZO">a-IGZO</option><option value="a-Si">a-Si</option><option value="LTPS">LTPS</option></select></label>
+            <label>채널 폭 W <span>(μm)</span><input id="tft-width" type="number" min="1" max="99" value="20" required /></label>
+            <label>채널 길이 L <span>(μm)</span><input id="tft-length" type="number" min="1" max="99" value="4" required /></label>
+            <label>극성<select id="tft-polarity"><option value="auto">재료에서 자동 확인</option><option value="n">n-type</option><option value="p">p-type</option></select></label>
+          </div>
+          <div class="field-grid is-hidden" id="tauc-fields"><label>재료<select id="tauc-material"><option value="a-Si">a-Si</option><option value="Poly-Si">Poly-Si</option><option value="a-IGZO">a-IGZO</option></select></label><p class="form-hint">JASCO 투과율 CSV · 300~700 nm · 0.1 nm 간격</p></div>
+          <div class="file-row">
+            <label class="file-picker" for="file-input"><input id="file-input" type="file" accept=".dat,.csv,text/csv" /><span aria-hidden="true">↑</span> 파일 선택</label>
+            <span class="file-name" id="file-label" aria-live="polite">선택한 파일이 없어요</span>
+            <button id="clear-file" class="button button-subtle" type="button" disabled>선택 취소</button>
+          </div>
+          <section class="upload-conditions" aria-labelledby="conditions-title">
+            <h3 id="conditions-title">이 조건으로 계산해요</h3>
+            <p id="condition-values"></p>
+            <p id="filename-conditions" class="form-hint"></p>
+            <label class="condition-confirm"><input id="condition-confirm" type="checkbox" required /><span id="condition-confirm-label">파일의 측정 조건이 위 내용과 맞는지 확인했어요</span></label>
+          </section>
+          <div class="upload-actions"><button class="button button-primary" id="analyze-file" type="submit" disabled>선택한 파일 분석</button><span id="upload-state" class="form-hint">파일을 바꾸려면 선택 취소 후 새 파일을 넣어주세요.</span></div>
+        </form>
+      </details>
+    </section>
+
+    <section class="stage result-stage" id="analysis" aria-label="분석과 근거 보기">
+      <div id="result-panel" aria-live="polite" aria-busy="false"></div>
+    </section>
+    <section class="stage is-hidden" id="review" aria-label="검토 기록 남기기"><div id="review-panel"></div></section>
+
+    <section class="project-story" id="project">
+      <div><p class="eyebrow">PROJECT BACKGROUND</p><h2>실험에서 생긴 질문을<br />분석 과정으로 옮겼어요.</h2></div>
+      <div class="story-body"><p>원본 프로젝트에서는 TFT 15개 파일의 80개 측정 섹션과 UV–Vis 투과율 자료를 살펴봤어요. 같은 피팅 구간을 모든 재료에 적용하기에는 실제 측정 범위와 극성이 달랐습니다.</p><p>a-IGZO는 측정 상한이 18 V이고, LTPS는 음전압으로 측정돼 있었어요. 각 파일의 범위 안에서 후보를 찾고, 구간을 옮겼을 때 결과가 얼마나 달라지는지 비교하도록 만들었습니다.</p><a href="samples/README.md" class="text-link">예제 출처와 가공 내역 보기 ↗</a></div>
+    </section>
+    <footer class="site-footer">
+      <details><summary>데이터·계산·기록 안내</summary><div class="footer-notes"><p>실측 예제는 원자료의 수치를 발췌했고, 오류 주입 예제는 복사본에서 지정한 부분을 바꿨습니다. 후보는 고정된 계산식과 검토 규칙으로 만듭니다.</p><p>업로드 파일은 서버 함수로 전송해 분석하고 저장하지 않습니다. 검토 메모와 선택한 후보는 현재 브라우저에 저장됩니다.</p><p>Tauc 계산 조건과 기존 300건 검증의 범위는 <a href="VALIDATION.md">검증 문서</a>에 정리했습니다.</p><button id="clear-decisions" class="text-button" type="button">이 브라우저의 검토 기록 지우기</button></div></details>
+      <span>실험 데이터 리뷰 · Portfolio 3.1</span>
+    </footer>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="web/review-state.js"></script>
+  <script src="web/chart.js"></script>
+  <script src="web/help.js"></script>
+  <script src="web/app.js"></script>
+</body>
+</html>

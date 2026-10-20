@@ -1,0 +1,117 @@
+{
+  "scope": "historical_measured_based_fault_injection",
+  "evaluated_entrypoint": "prototype_tft_review_server.inspect_upload_payload",
+  "current_public_entrypoint": "analysis_service.analyze_request",
+  "rerun_on_current_public_entrypoint": false,
+  "counts": {
+    "total_cases": 300,
+    "scored_positive": 225,
+    "control_negative": 75,
+    "tp": 172,
+    "fn": 53,
+    "fp": 0,
+    "tn": 75
+  },
+  "metrics": {
+    "recall": 0.7644444444444445,
+    "precision": 1.0,
+    "control_specificity": 1.0
+  },
+  "by_scenario": {
+    "ambiguous_mapping": {
+      "total": 15,
+      "tp": 15,
+      "fn": 0,
+      "recall": 1.0
+    },
+    "axis_value_swap": {
+      "total": 15,
+      "tp": 15,
+      "fn": 0,
+      "recall": 1.0
+    },
+    "duplicate_conflict": {
+      "total": 15,
+      "tp": 0,
+      "fn": 15,
+      "recall": 0.0
+    },
+    "duplicate_mapping": {
+      "total": 15,
+      "tp": 15,
+      "fn": 0,
+      "recall": 1.0
+    },
+    "interior_gap": {
+      "total": 15,
+      "tp": 0,
+      "fn": 15,
+      "recall": 0.0
+    },
+    "isolated_spike": {
+      "total": 15,
+      "tp": 15,
+      "fn": 0,
+      "recall": 1.0
+    },
+    "jagged_curve": {
+      "total": 15,
+      "tp": 15,
+      "fn": 0,
+      "recall": 1.0
+    },
+    "missing_measurements": {
+      "total": 15,
+      "tp": 15,
+      "fn": 0,
+      "recall": 1.0
+    },
+    "mixed_subtle_corruption": {
+      "total": 15,
+      "tp": 7,
+      "fn": 8,
+      "recall": 0.4666666666666667
+    },
+    "nonlinear_curve": {
+      "total": 15,
+      "tp": 15,
+      "fn": 0,
+      "recall": 1.0
+    },
+    "partial_unit_scale": {
+      "total": 15,
+      "tp": 0,
+      "fn": 15,
+      "recall": 0.0
+    },
+    "plateau_curve": {
+      "total": 15,
+      "tp": 15,
+      "fn": 0,
+      "recall": 1.0
+    },
+    "reversed_slope": {
+      "total": 15,
+      "tp": 15,
+      "fn": 0,
+      "recall": 1.0
+    },
+    "truncated_sweep": {
+      "total": 15,
+      "tp": 15,
+      "fn": 0,
+      "recall": 1.0
+    },
+    "zero_current": {
+      "total": 15,
+      "tp": 15,
+      "fn": 0,
+      "recall": 1.0
+    }
+  },
+  "source_sha256": {
+    "blind_validation_report.json": "21f5fcbfaa00ab53f53b191b7ae4d855627d20d053ab46ed0c59fb09f933dc4a",
+    "blind_validation_fixtures.py": "976ccfc45457231e47f3688144ada99ccdece9425fdc5db0e49d92022815dca4",
+    "blind_validation_report.py": "3c581eec13dfa11ebed26a9f78010e195539d1261cc49edfe582d90bfe0307f9"
+  }
+}
