@@ -1130,6 +1130,8 @@ summary::-webkit-details-marker {
 .findings:focus-visible { outline:2px solid var(--blue); outline-offset:8px }
 body { padding-bottom:96px }
 .issue-notice {
+  display:flex;
+  align-items:center;
   position:fixed;
   z-index:105;
   left:50%;
@@ -1141,11 +1143,12 @@ body { padding-bottom:96px }
   background:#fffdf8;
   box-shadow:0 4px 16px #25354a18
 }
-.issue-notice button {
+.issue-notice #jump-to-findings {
   display:flex;
   align-items:center;
   gap:12px;
   width:100%;
+  min-width:0;
   min-height:64px;
   padding:12px 16px;
   text-align:left;
@@ -1155,6 +1158,9 @@ body { padding-bottom:96px }
   color:var(--ink)
 }
 .issue-notice button>svg { width:23px; height:23px; flex:none; color:#956321 }
+.issue-notice #dismiss-issue-notice { flex:none; width:44px; height:44px; padding:11px; margin-right:4px; border:0; border-radius:8px; background:transparent; color:#64707e }
+.issue-notice #dismiss-issue-notice:hover { background:#f1ece2; color:var(--ink) }
+.issue-notice #dismiss-issue-notice>svg { display:block; width:22px; height:22px; color:inherit }
 .issue-notice strong { display:block; font-size:14px; font-weight:600 }
 .issue-notice small { display:block; font-size:12px; color:#64707e; margin-top:3px }
 .notice-action { margin-left:auto; font-size:12px; color:#735321; white-space:nowrap }
@@ -1176,7 +1182,7 @@ body { padding-bottom:96px }
 .has-issue-notice .toast { bottom:100px }
 @media(max-width:760px) {
   .issue-notice { left:12px; right:72px; width:auto; transform:none }
-  .issue-notice button { gap:9px; padding:10px 12px; min-height:62px }
+  .issue-notice #jump-to-findings { gap:9px; padding:10px 8px 10px 12px; min-height:62px }
   .issue-notice strong { font-size:13px }
   .notice-action { display:none }
   .back-to-top { right:12px }

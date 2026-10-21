@@ -36,14 +36,21 @@
   function storage() { try { return localStorage; } catch (_) { return null; } }
   function dismissToast() { clearTimeout(state.toastTimer); $("#toast").classList.remove("is-visible"); $("#toast").textContent = ""; }
   function toast(message) { const target = $("#toast"); target.textContent = message; target.classList.add("is-visible"); clearTimeout(state.toastTimer); state.toastTimer = setTimeout(() => target.classList.remove("is-visible"), 2800); }
+  let dismissedIssueResult = null;
   function updateIssueNotice() {
     const result = state.result;
     const count = result ? (result.findings?.length || (result.status !== "ready" ? 1 : 0)) : 0;
-    $("#issue-notice").hidden = count === 0;
+    const visible = count > 0 && result !== dismissedIssueResult;
+    $("#issue-notice").hidden = !visible;
     const label = count ? "확인 의견 " + count + "개" : "";
     if ($("#issue-notice-count").textContent !== label) $("#issue-notice-count").textContent = label;
-    document.body.classList.toggle("has-issue-notice", count > 0);
+    document.body.classList.toggle("has-issue-notice", visible);
   }
+  $("#dismiss-issue-notice").addEventListener("click", () => {
+    dismissedIssueResult = state.result;
+    updateIssueNotice();
+    $("#findings")?.focus({preventScroll:true});
+  });
   const scrollBehavior = () => matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
   $("#jump-to-findings").addEventListener("click", () => {
     const target = $("#findings");
