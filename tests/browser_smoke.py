@@ -75,6 +75,22 @@ def main():
                 page.locator('[data-action="material"][data-material="' + material + '"]').click()
                 expect(page.locator("#sample-list .sample-card")).to_have_count(3)
                 expect(page.locator("#sample-list .sample-card h3").first).to_contain_text(expected_name)
+                for helper in page.locator('#sample-list [data-help="geometry"]').all():
+                    helper.focus()
+                    expect(page.locator('#term-tooltip svg')).to_be_visible()
+                    w, l = float(helper.get_attribute('data-w')), float(helper.get_attribute('data-l'))
+                    dimensions = page.locator('#term-tooltip svg').evaluate('''svg => {
+                        const r = [...svg.querySelectorAll('rect')];
+                        const n = (el, key) => Number(el.getAttribute(key));
+                        const boxes = [...svg.querySelectorAll('text')].map(el => ({text:el.textContent, b:el.getBoundingClientRect().toJSON()}));
+                        const overlaps = boxes.flatMap((a,i) => boxes.slice(i+1).filter(c => a.b.x<c.b.right && a.b.right>c.b.x && a.b.y<c.b.bottom && a.b.bottom>c.b.y).map(c => [a.text,c.text]));
+                        return {ratio:n(r[1],'height')/(n(r[3],'x')-n(r[2],'x')-n(r[2],'width')), overlaps};
+                    }''')
+                    assert math.isclose(dimensions['ratio'], w/l), dimensions
+                    assert not dimensions['overlaps'], dimensions
+                    expect(page.locator('#term-tooltip')).to_contain_text('Gate')
+                    expect(page.locator('#term-tooltip')).to_contain_text('절연막')
+                    helper.press('Escape')
             geometry = page.locator("#sample-list .help-trigger").first
             geometry.hover()
             expect(page.locator("#term-tooltip")).to_be_visible()
@@ -109,6 +125,7 @@ def main():
             svg = page.locator("#chart-host svg")
             initial = float(svg.get_attribute("data-x-span"))
             ticks = svg.locator("text").all_text_contents()
+            assert svg.locator('[data-axis="x"]').all_text_contents() == ['0', '5', '10', '15']
             assert any("e-" in value for value in ticks), ticks
             expect(svg).to_have_attribute("aria-label", re.compile("√A"))
             page.get_by_role("button", name="그래프 확대", exact=True).click()

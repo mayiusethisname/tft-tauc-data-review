@@ -1,0 +1,30 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Analysis regression
+        run: python -B -m unittest discover -s tests -p 'test_*.py' -q
+      - name: Review state and JavaScript syntax
+        run: |
+          node tests/test_review_state.cjs
+          for file in web/*.js; do node --check "$file"; done
+      - name: Public files and links
+        run: python -B tools/audit_public_copy.py

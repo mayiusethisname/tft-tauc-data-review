@@ -8,6 +8,17 @@
     if (Math.abs(value) < .01 || Math.abs(value) >= 10000) return value.toExponential(1);
     return Number(value.toPrecision(4)).toLocaleString("en-US", { maximumFractionDigits: 3 });
   }
+  function niceTicks(min, max, target) {
+    const rough = (max - min) / Math.max(1, target - 1);
+    const power = 10 ** Math.floor(Math.log10(rough));
+    const step = [1, 2, 2.5, 5, 10].map(n => n * power).find(n => n >= rough);
+    const first = Math.ceil(min / step - 1e-10);
+    const last = Math.floor(max / step + 1e-10);
+    return Array.from({ length: Math.max(0, last - first + 1) }, (_, i) => {
+      const value = (first + i) * step;
+      return Math.abs(value) < step * 1e-9 ? 0 : Number(value.toPrecision(12));
+    });
+  }
   function mount(container, config) {
     const series = config.series.map((s) => ({ ...s, points: s.points.filter((p) => p.every(Number.isFinite)) }));
     const all = series.flatMap((s) => s.points);
@@ -41,10 +52,15 @@
       const sy = (y) => d.top + ph - (y - view.y0) / (view.y1 - view.y0) * ph;
       const count = width < 500 ? 3 : 5;
       let grid = "", labels = "";
-      for (let i = 0; i < count; i++) {
-        const ratio = i / (count - 1), x = d.left + pw * ratio, y = d.top + ph * ratio;
-        grid += `<path d="M${x} ${d.top}V${d.top + ph} M${d.left} ${y}H${d.left + pw}" fill="none" stroke="${colors.grid}" stroke-width="1"/>`;
-        labels += `<text x="${x}" y="${d.top + ph + 24}" text-anchor="middle">${tick(view.x0 + (view.x1 - view.x0) * ratio)}</text><text x="${d.left - 10}" y="${y + 4}" text-anchor="end">${tick(view.y1 - (view.y1 - view.y0) * ratio)}</text>`;
+      for (const value of niceTicks(view.x0, view.x1, width < 500 ? 4 : 6)) {
+        const x = sx(value);
+        grid += `<path d="M${x} ${d.top}V${d.top + ph}" stroke="${colors.grid}" stroke-width="1"/>`;
+        labels += `<text data-axis="x" x="${x}" y="${d.top + ph + 24}" text-anchor="middle">${tick(value)}</text>`;
+      }
+      for (const value of niceTicks(view.y0, view.y1, count)) {
+        const y = sy(value);
+        grid += `<path d="M${d.left} ${y}H${d.left + pw}" stroke="${colors.grid}" stroke-width="1"/>`;
+        labels += `<text data-axis="y" x="${d.left - 10}" y="${y + 4}" text-anchor="end">${tick(value)}</text>`;
       }
       let marks = "";
       for (const [index, a] of (config.annotations || []).entries()) {

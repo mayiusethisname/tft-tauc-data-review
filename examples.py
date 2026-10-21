@@ -16,7 +16,7 @@ def add_tft(sample_id: str, material: str, prefix: str, width: int, length: int,
         "filename": f"{ {'a-Si':'aSi','a-IGZO':'aIGZO','LTPS':'LTPS'}[material]}_W{width:02d}_L{length:02d}_Mobility.csv", "asset": asset,
         "width_um": width, "length_um": length,
         "profile": {"material": material, "width_um": width, "length_um": length, "conditions_confirmed": True},
-        "source": f"TFT 실험자료 · {material} W{width}/L{length} · MOBILITY 발췌",
+        "source": f"TFT 실험자료 · {material} W{width}/L{length} · MOBILITY 섹션 추출",
         "modification": "측정 숫자를 유지하고 VD·ID 열을 VGS=VDS·IDS로 연결했습니다.",
         "lesson": "대표 구간과 주변 구간에서의 결과 변화를 함께 보세요. 자세한 후보는 아래에서 펼쳐볼 수 있어요.",
     }
@@ -53,7 +53,7 @@ def add_fault(sample_id: str, control_id: str, fault: str) -> None:
         id=sample_id, kind="modified", control_id=control_id, fault=fault,
         title=title, description=description,
         filename=sample["filename"].replace(".csv", f"_{fault}.csv"),
-        source=sample["source"] + " · 오류 주입 복사본",
+        source=sample["source"] + " · 오류 재현 복사본",
         modification=change,
         lesson="확인 의견에서 위치를 누르고, 그래프의 표시와 원본 대조를 살펴보세요. 안내에 따라 파일을 고친 뒤 다시 넣어보세요.",
     )

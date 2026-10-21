@@ -2,7 +2,7 @@
 
 ## 모델 조건과 구간 이동
 
-MOBILITY 발췌의 VD·ID를 VGS=VDS·IDS로 연결합니다. 각 후보의 피팅 Vth를 대입해 `VGS−Vth > 0`, `VDS ≥ VGS−Vth`를 확인하고, 최소 오버드라이브와 포화 조건 여유를 표시합니다. p형은 전압과 Vth의 극성을 바꾼 구동 좌표로 확인합니다. 이 검사는 사용한 포화식의 바이어스 일관성에 관한 것입니다. [MIT의 MOSFET 포화 영역 설명](https://ocw.mit.edu/courses/6-012-microelectronic-devices-and-circuits-spring-2009/resources/mit6_012s09_lec09/)
+MOBILITY 섹션 추출의 VD·ID를 VGS=VDS·IDS로 연결합니다. 각 후보의 피팅 Vth를 대입해 `VGS−Vth > 0`, `VDS ≥ VGS−Vth`를 확인하고, 최소 오버드라이브와 포화 조건 여유를 표시합니다. p형은 전압과 Vth의 극성을 바꾼 구동 좌표로 확인합니다. 이 검사는 사용한 포화식의 바이어스 일관성에 관한 것입니다. [MIT의 MOSFET 포화 영역 설명](https://ocw.mit.edu/courses/6-012-microelectronic-devices-and-circuits-spring-2009/resources/mit6_012s09_lec09/)
 
 선택 구간의 시작·끝 전압을 함께 −0.5 / 0 / +0.5 V 옮겨 같은 폭으로 다시 회귀합니다. μ는 `2a² / (Ci × W/L)`, Vth는 `−b/a`로 계산합니다. `Δμ = (μ이동/μ기준−1)×100`, `ΔVth = Vth이동−Vth기준`입니다. 원래 전압 축을 사용하므로 LTPS의 −0.5 V는 더 음의 방향입니다. 실제 범위를 완전히 덮지 못하거나 양의 구동 기울기가 없으면 해당 이동의 값을 제시하지 않습니다.
 

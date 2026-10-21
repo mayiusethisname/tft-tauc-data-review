@@ -186,7 +186,7 @@
   function modelEvidence(c) {
     if (state.domain !== "tft" || !c?.model_check) return "";
     const m = c.model_check;
-    return '<details class="model-panel"><summary>모델 바이어스 점검 · ' + (m.passed ? '조건 충족' : '확인 필요') + '</summary><p>포화식 적용 조건: VGS−Vth &gt; 0, VDS ≥ VGS−Vth. p형은 극성을 바꾼 구동 전압으로 계산합니다.</p><p class="model-values"><span>최소 오버드라이브 ' + num(m.overdrive_min_V, 3) + ' V</span><span>포화 조건 여유 ' + num(m.saturation_margin_min_V, 3) + ' V</span></p><p>MOBILITY의 VGS=VDS 매핑과 선택 구간 Vth를 사용합니다. 전도 메커니즘 확인에는 추가 바이어스 측정이 필요합니다.</p></details>';
+    return '<details class="model-panel"><summary>인가 전압 조건 확인 · ' + (m.passed ? '조건 충족' : '확인 필요') + '</summary><p>포화식 적용 조건: VGS−Vth &gt; 0, VDS ≥ VGS−Vth. p형은 극성을 바꾼 구동 전압으로 계산합니다.</p><p class="model-values"><span>최소 오버드라이브 ' + num(m.overdrive_min_V, 3) + ' V</span><span>포화 조건 여유 ' + num(m.saturation_margin_min_V, 3) + ' V</span></p><p>MOBILITY의 VGS=VDS 매핑과 선택 구간 Vth를 사용합니다. 전도 메커니즘 확인에는 추가 바이어스 측정이 필요합니다.</p></details>';
   }
   function delta(c, index) {
     const first = candidates()[0];
@@ -214,7 +214,7 @@
     if (state.domain === "tft") {
       const r2 = Number(c.r2 ?? c.fit?.r2), error = Number(c.normalized_rmse), slope = Number(c.slope_stability);
       return [
-        ["직선 적합도", "이 구간이 직선에 얼마나 가까운가요?", "R²는 선택한 측정점을 직선이 얼마나 잘 따라가는지 보여줘요. 현재 후보의 값은 원본 검토 기준인 0.995 " + (r2 >= .995 ? "이상에 들어와요." : "보다 낮아요. 원곡선 모양을 함께 확인해 주세요."), "R² " + num(r2, 6) + " · 기준 ≥ 0.995"],
+        ["직선 적합도", "이 구간이 직선에 얼마나 가까운가요?", "R²는 선택한 측정점을 직선이 얼마나 잘 따라가는지 보여줘요. 현재 후보의 값은 원본 검토 기준인 0.995 " + (r2 >= .995 ? "이상으로, 피팅 기준을 충족해요." : "보다 낮아요. 원곡선 모양을 함께 확인해 주세요."), "R² " + num(r2, 6) + " · 기준 ≥ 0.995"],
         ["잔차와 기울기", "직선 주변의 흔들림도 함께 봤어요.", "정규화 잔차는 구간 내 값의 범위에 비해 오차가 얼마나 큰지 나타내요. 구간 앞뒤의 기울기 변화도 함께 비교합니다. 두 값이 작을수록 같은 구간에서 직선으로 해석하기 쉬워요.", "정규화 잔차 " + num(error * 100, 2) + "% (기준 ≤ 2%) · 기울기 변화 " + num(slope * 100, 2) + "% (기준 ≤ 20%)"],
         ["구간 이동", "구간을 조금 옮겨도 결과가 비슷한가요?", "같은 폭으로 −0.5 / 0 / +0.5 V 이동해 다시 계산합니다. 아래 표에서 각 값과 선택 구간 대비 차이를 비교할 수 있습니다.", "이동도 최대 변화 " + num(c.sensitivity?.max_mu_change_pct, 2) + "% (기준 ≤ 15%) · Vth 최대 변화 " + num(c.sensitivity?.max_vth_change_V, 3) + " V (기준 ≤ 0.5 V)"],
         ["측정점과 범위", "실제로 측정한 범위 안에서 골랐어요.", "이 후보는 " + c.points + "개 측정점을 포함해요. 최소 20개 점이 있는 구간들에서 적합도·잔차·구간 민감도를 함께 비교한 순서입니다. 다른 후보를 누르면 같은 기준으로 차이를 볼 수 있어요.", "원본 전압 범위 " + num(Math.min(...state.result.data.points.map((p) => p.x)), 1) + " ~ " + num(Math.max(...state.result.data.points.map((p) => p.x)), 1) + " V · 후보 구간 폭 " + num(c.window_span_V, 1) + " V"],
@@ -265,7 +265,7 @@
     }
     const findings = result.findings || [];
     const markers = findings.flatMap((finding) => finding.voltages || []).map((value) => points.find((point) => point[0] === value)).filter(Boolean);
-    const annotations = findings.flatMap((finding) => (finding.ranges || (finding.voltages || []).map((x) => [x-.15,x+.15])).map((range) => ({range,label:finding.code === "measurement_gap" ? "측정 간격 확인" : finding.code === "invalid_numeric_rows" ? "읽지 못한 측정값" : "전류 튐 확인"})));
+    const annotations = findings.flatMap((finding) => (finding.ranges || (finding.voltages || []).map((x) => [x-.15,x+.15])).map((range) => ({range,label:({"measurement_gap":"측정 간격 확인","invalid_numeric_rows":"읽지 못한 측정값","current_step":"전류 단차","high_drive_rolloff":"고전압 감쇠","endpoint_discontinuity":"종료점 차이","trend_reversal":"기울기 반전","isolated_spike":"전류 튐"})[finding.code] || "확인할 구간"})));
     return {title:tft ? (c ? "포화 특성 · 구간과 피팅 직선" : "포화 특성 · 원본 곡선 점검") : "Tauc 변환 · 직선 구간과 Eg",xLabel:tft ? "VGS = VDS (V)" : "광자 에너지 hν (eV)",yLabel:tft ? "√|IDS| (√A)" : (c?.transition_model?.startsWith("indirect") || c?.transition_model === "legacy_amorphous") ? "(αhν)½ (eV/cm)½" : "(αhν)² (eV/cm)²",series,window:c ? [start,end] : null,intercept:c ? xIntercept : undefined,markers,annotations,gaps:findings.filter((finding) => ["measurement_gap","invalid_numeric_rows"].includes(finding.code)).flatMap((finding) => finding.ranges || [])};
   }
   function mountChart(view) {

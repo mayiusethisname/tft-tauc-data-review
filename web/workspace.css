@@ -1166,6 +1166,11 @@ summary::-webkit-details-marker {
   font-size:14px;
   font-weight:600
 }
+.term-tooltip.geometry-tooltip {
+  width:min(430px,calc(100vw - 24px));
+  max-height:calc(100dvh - 24px);
+  overflow-y:auto
+}
 .term-tooltip .term-example {
   margin-top:10px;
   padding-top:10px;
