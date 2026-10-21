@@ -1,6 +1,6 @@
 [project]
 name = "tft-tauc-data-review"
-version = "3.4.0"
+version = "3.5.0"
 description = "A small interactive TFT and Tauc measurement review demo"
 requires-python = ">=3.11"
 dependencies = []

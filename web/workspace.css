@@ -179,26 +179,26 @@ textarea {
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:4px;
-  border-bottom:1px solid var(--line);
+  border:1px solid #d8dee7;
+  background:#e9edf2;
+  border-radius:10px;
+  padding:4px;
   margin-bottom:20px
 }
 .domain-tab {
   border:0;
-  border-radius:0;
-  padding:10px 5px 12px;
+  border-radius:6px;
+  min-height:64px;
+  padding:10px 7px;
   background:transparent;
   text-align:left;
   position:relative
 }
-.domain-tab.is-active::after {
-  content:"";
-  position:absolute;
-  bottom:-1px;
-  left:0;
-  right:0;
-  height:2px;
-  background:var(--ink)
+.domain-tab.is-active {
+  background:#fff;
+  box-shadow:0 1px 3px #243b561c
 }
+.domain-tab:hover:not(.is-active) { background:#f1f4f8 }
 .domain-tab strong {
   display:block;
   font-size:13px;
@@ -222,11 +222,15 @@ textarea {
 .material-option {
   display:inline-flex;
   align-items:center;
-  border-radius:6px;
+  border:1px solid #d5dde7;
+  background:#fff;
+  box-shadow:0 1px 2px #243b5610;
+  border-radius:8px;
   padding-right:2px
 }
 .material-option.is-active {
-  background:#e4e8ed
+  background:#e8eef8;
+  border-color:#b6c6df
 }
 .material-option>button[data-action] {
   border:0;
@@ -256,12 +260,13 @@ textarea {
 }
 .sample-card {
   padding:14px 12px;
-  border:1px solid transparent;
-  border-radius:8px;
+  border:1px solid #d9e0e9;
+  background:#fff;
+  border-radius:10px;
   min-width:0
 }
 .sample-card.is-selected {
-  border-color:#bac5d1;
+  border-color:#7d91af;
   background:#fff
 }
 .sample-top {
@@ -280,31 +285,46 @@ textarea {
 .sample-geometry {
   display:inline-flex;
   align-items:center;
-  font:12px var(--data)
+  font:12px var(--data);
+  color:var(--muted)
 }
 .sample-card h3 {
-  font:500 12px/1.65 var(--data);
+  font:550 13px/1.65 var(--data);
   overflow-wrap:anywhere;
   margin:5px 0
 }
 .sample-card p {
-  font-size:13px;
+  font-size:12px;
   color:var(--muted)
 }
 .sample-actions {
   display:flex;
   align-items:center;
-  gap:14px;
+  gap:8px;
   margin-top:12px
 }
 .sample-actions .button {
-  padding:5px 8px;
-  min-height:30px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  line-height:1.4;
+  padding:7px 10px;
+  min-height:38px;
+  box-shadow:0 1px 2px #243b561a;
   font-size:13px
 }
-.sample-actions .text-link {
-  font-size:13px
+.sample-actions .sample-download {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  background:#f8fafc;
+  color:var(--ink);
+  border:1px solid #cbd5e2
 }
+.sample-actions .button:hover { border-color:#8da3c0; transform:translateY(-1px) }
+.sample-actions .button:active { transform:translateY(0); box-shadow:none }
 .sample-actions .button-primary {
   background:var(--ink);
   color:#fff;
@@ -1106,6 +1126,61 @@ summary::-webkit-details-marker {
 .site-footer>span {
   white-space:nowrap
 }
+.findings { scroll-margin-top:24px }
+.findings:focus-visible { outline:2px solid var(--blue); outline-offset:8px }
+body { padding-bottom:96px }
+.issue-notice {
+  position:fixed;
+  z-index:105;
+  left:50%;
+  bottom:max(20px,env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  width:min(460px,calc(100vw - 112px));
+  border:1px solid #e3d2b4;
+  border-radius:12px;
+  background:#fffdf8;
+  box-shadow:0 4px 16px #25354a18
+}
+.issue-notice button {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:100%;
+  min-height:64px;
+  padding:12px 16px;
+  text-align:left;
+  background:transparent;
+  border:0;
+  border-radius:inherit;
+  color:var(--ink)
+}
+.issue-notice button>svg { width:23px; height:23px; flex:none; color:#956321 }
+.issue-notice strong { display:block; font-size:14px; font-weight:600 }
+.issue-notice small { display:block; font-size:12px; color:#64707e; margin-top:3px }
+.notice-action { margin-left:auto; font-size:12px; color:#735321; white-space:nowrap }
+.back-to-top {
+  position:fixed;
+  right:24px;
+  bottom:max(20px,env(safe-area-inset-bottom));
+  width:44px;
+  height:44px;
+  padding:10px;
+  z-index:106;
+  border:1px solid #cdd6e2;
+  border-radius:12px;
+  color:var(--ink);
+  background:#fff;
+  box-shadow:0 2px 8px #25354a14
+}
+.back-to-top svg { width:22px; height:22px; display:block }
+.has-issue-notice .toast { bottom:100px }
+@media(max-width:760px) {
+  .issue-notice { left:12px; right:72px; width:auto; transform:none }
+  .issue-notice button { gap:9px; padding:10px 12px; min-height:62px }
+  .issue-notice strong { font-size:13px }
+  .notice-action { display:none }
+  .back-to-top { right:12px }
+}
 .toast {
   position:fixed;
   left:50%;
@@ -1316,11 +1391,11 @@ summary::-webkit-details-marker {
 .sample-card h3 {
   font-size:13px
 }
-.sample-card p,.sample-actions .text-link,.sample-actions .button {
+.sample-actions .sample-download,.sample-actions .button {
   font-size:13px
 }
 .sample-actions .button {
-  min-height:40px
+  min-height:44px
 }
 .help-trigger,.sample-geometry .help-trigger {
   width:44px;

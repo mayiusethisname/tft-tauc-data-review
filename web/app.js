@@ -36,6 +36,29 @@
   function storage() { try { return localStorage; } catch (_) { return null; } }
   function dismissToast() { clearTimeout(state.toastTimer); $("#toast").classList.remove("is-visible"); $("#toast").textContent = ""; }
   function toast(message) { const target = $("#toast"); target.textContent = message; target.classList.add("is-visible"); clearTimeout(state.toastTimer); state.toastTimer = setTimeout(() => target.classList.remove("is-visible"), 2800); }
+  function updateIssueNotice() {
+    const result = state.result;
+    const count = result ? (result.findings?.length || (result.status !== "ready" ? 1 : 0)) : 0;
+    $("#issue-notice").hidden = count === 0;
+    const label = count ? "확인 의견 " + count + "개" : "";
+    if ($("#issue-notice-count").textContent !== label) $("#issue-notice-count").textContent = label;
+    document.body.classList.toggle("has-issue-notice", count > 0);
+  }
+  const scrollBehavior = () => matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  $("#jump-to-findings").addEventListener("click", () => {
+    const target = $("#findings");
+    if (!target) return;
+    target.focus({preventScroll:true});
+    target.scrollIntoView({behavior:scrollBehavior(),block:"start"});
+  });
+  $("#back-to-top").addEventListener("click", () => {
+    const heading = $("h1");
+    heading.setAttribute("tabindex","-1"); heading.focus({preventScroll:true});
+    window.scrollTo({top:0,behavior:scrollBehavior()});
+  });
+  const updateTopButton = () => { $("#back-to-top").hidden = scrollY < 320; };
+  window.addEventListener("scroll", updateTopButton, {passive:true});
+  updateTopButton();
   function stopRequest() { state.controller?.abort(); state.controller = null; state.requestId += 1; return state.requestId; }
   function resetFileInput() {
     fileInput.value = ""; $("#file-label").textContent = "선택한 파일이 없어요";
@@ -45,6 +68,7 @@
   }
   function empty(message = "분석할 파일을 선택해 주세요", detail = "실측 예제를 열거나 DAT·CSV를 업로드할 수 있습니다.") {
     state.chart?.destroy(); state.chart = null; state.result = null;
+    updateIssueNotice();
     $("#result-panel").setAttribute("aria-busy", "false");
     $("#result-panel").innerHTML = `<div class="empty-state"><span class="empty-number">2</span><h3>${escape(message)}</h3><p>${escape(detail)}</p></div>`;
     $("#review").classList.add("is-hidden");
@@ -79,7 +103,7 @@
     const card = (sample, index) => {
       const modified = sample.kind === "modified";
       const dimensions = sample.width_um ? '<div class="sample-geometry"><span>W' + sample.width_um + '/L' + sample.length_um + ' μm</span>' + help("geometry", "채널 폭과 길이", ' data-w="' + sample.width_um + '" data-l="' + sample.length_um + '"') + '</div>' : "";
-      return '<article class="sample-card ' + (state.activeSample === sample.id ? 'is-selected' : '') + '" data-sample="' + sample.id + '"><div class="sample-top"><span class="kind-badge ' + (modified ? 'modified' : '') + '">' + (modified ? '오류 추가' : '실측') + '</span>' + dimensions + '</div><h3>' + escape(modified ? sample.title : sample.filename) + '</h3>' + (modified ? '<p>' + escape(sample.description) + '</p>' : '') + '<div class="sample-actions"><button class="button ' + (state.activeSample === sample.id ? 'button-primary' : '') + '" type="button" data-action="open-sample" data-id="' + sample.id + '">분석 보기</button><a class="text-link" href="/api?action=sample&amp;id=' + encodeURIComponent(sample.id) + '" download>CSV 받기</a></div></article>';
+      return '<article class="sample-card ' + (state.activeSample === sample.id ? 'is-selected' : '') + '" data-sample="' + sample.id + '"><div class="sample-top"><span class="kind-badge ' + (modified ? 'modified' : '') + '">' + (modified ? '오류 추가' : '실측') + '</span>' + dimensions + '</div><h3>' + escape(modified ? sample.title : sample.filename) + '</h3>' + (modified ? '<p>' + escape(sample.description) + '</p>' : '') + '<div class="sample-actions"><button class="button ' + (state.activeSample === sample.id ? 'button-primary' : '') + '" type="button" data-action="open-sample" data-id="' + sample.id + '">분석 보기</button><a class="button sample-download" href="/api?action=sample&amp;id=' + encodeURIComponent(sample.id) + '" download>CSV 받기</a></div></article>';
     };
     $("#sample-list").innerHTML = measured.map(card).join("");
     $("#fault-list").innerHTML = faults.map(card).join("");
@@ -87,6 +111,7 @@
   }
   function loading(name) {
     state.chart?.destroy(); state.chart = null; state.result = null; $("#review").classList.add("is-hidden");
+    updateIssueNotice();
     $("#result-panel").setAttribute("aria-busy", "true");
     $("#result-panel").innerHTML = `<div class="empty-state"><h3><span class="loading-dots" aria-hidden="true"></span>측정 파일 분석 중</h3><p>${escape(name)}</p></div>`;
   }
@@ -159,7 +184,7 @@
     }).join("");
     const sample = result.sample;
     const overlay = sample?.control_id && (result.domain === "tauc" || !result.preview?.table);
-    return '<section class="findings"><div class="finding-intro"><h3>표시한 부분을 확인해 주세요</h3><p>위치 확인 → 원자료 대조 → 수정한 파일로 다시 분석</p></div>' + items + '<div class="finding-actions">' + (sample?.control_id ? '<button class="button" type="button" data-action="' + (overlay ? 'overlay-control' : 'open-sample') + '" data-id="' + sample.control_id + '">' + (overlay ? '대조 원본 겹쳐 보기' : '열 이름이 있는 원본 열기') + '</button>' : '') + '<button class="text-button" type="button" data-action="goto-upload">수정한 파일 넣기 →</button></div></section>';
+    return '<section class="findings" id="findings" tabindex="-1" aria-labelledby="findings-title"><div class="finding-intro"><h3 id="findings-title">표시한 부분을 확인해 주세요</h3><p>위치 확인 → 원자료 대조 → 수정한 파일로 다시 분석</p></div>' + items + '<div class="finding-actions">' + (sample?.control_id ? '<button class="button" type="button" data-action="' + (overlay ? 'overlay-control' : 'open-sample') + '" data-id="' + sample.control_id + '">' + (overlay ? '대조 원본 겹쳐 보기' : '열 이름이 있는 원본 열기') + '</button>' : '') + '<button class="text-button" type="button" data-action="goto-upload">수정한 파일 넣기 →</button></div></section>';
   }
   function metrics(c) {
     if (!c) return "";
@@ -216,7 +241,7 @@
     if (state.domain === "tft") {
       const r2 = Number(c.r2 ?? c.fit?.r2), error = Number(c.normalized_rmse), slope = Number(c.slope_stability);
       return [
-        ["직선 적합도", "이 구간이 직선에 얼마나 가까운가요?", "R²는 선택한 측정점을 직선이 얼마나 잘 따라가는지 보여줘요. 현재 후보의 값은 원본 검토 기준인 0.995 " + (r2 >= .995 ? "이상으로, 피팅 기준을 충족해요." : "보다 낮아요. 원곡선 모양을 함께 확인해 주세요."), "R² " + num(r2, 6) + " · 기준 ≥ 0.995"],
+        ["직선 적합도", "이 구간이 직선에 얼마나 가까운가요?", "R²는 선택한 측정점을 직선이 얼마나 잘 따라가는지 보여줘요. 현재 후보의 값은 원본 검토 기준인 0.995 " + (r2 >= .995 ? "이상으로, 피팅 기준을 충족해요." : "보다 낮아요. 실측 곡선 모양을 함께 확인해 주세요."), "R² " + num(r2, 6) + " · 기준 ≥ 0.995"],
         ["잔차와 기울기", "직선 주변의 흔들림도 함께 봤어요.", "정규화 잔차는 구간 내 값의 범위에 비해 오차가 얼마나 큰지 나타내요. 구간 앞뒤의 기울기 변화도 함께 비교합니다. 두 값이 작을수록 같은 구간에서 직선으로 해석하기 쉬워요.", "정규화 잔차 " + num(error * 100, 2) + "% (기준 ≤ 2%) · 기울기 변화 " + num(slope * 100, 2) + "% (기준 ≤ 20%)"],
         ["구간 이동", "구간을 조금 옮겨도 결과가 비슷한가요?", "같은 폭으로 −0.5 / 0 / +0.5 V 이동해 다시 계산합니다. 아래 표에서 각 값과 선택 구간 대비 차이를 비교할 수 있습니다.", "이동도 최대 변화 " + num(c.sensitivity?.max_mu_change_pct, 2) + "% (기준 ≤ 15%) · Vth 최대 변화 " + num(c.sensitivity?.max_vth_change_V, 3) + " V (기준 ≤ 0.5 V)"],
         ["측정점과 범위", "실제로 측정한 범위 안에서 골랐어요.", "이 후보는 " + c.points + "개 측정점을 포함해요. 최소 20개 점이 있는 구간들에서 적합도·잔차·구간 민감도를 함께 비교한 순서입니다. 다른 후보를 누르면 같은 기준으로 차이를 볼 수 있어요.", "원본 전압 범위 " + num(Math.min(...state.result.data.points.map((p) => p.x)), 1) + " ~ " + num(Math.max(...state.result.data.points.map((p) => p.x)), 1) + " V · 후보 구간 폭 " + num(c.window_span_V, 1) + " V"],
@@ -292,6 +317,7 @@
       '<details class="source-detail"><summary>이 분석에 사용한 자료와 조건</summary><p>' + escape(result.sample?.modification || "선택한 파일의 측정값과 입력한 재료·조건으로 분석했습니다.") + '</p><p>파일: ' + escape(result.filename) + ' · 분석 버전: ' + escape(result.analysis_version) + '</p>' + (result.domain === "tauc" && ready ? '<p>박막 두께 ' + num(result.data.input_metadata?.thickness_nm, 0) + ' nm · 기준선 air · 기판 glass. 계산 조건은 원본 실험 프로파일을 따릅니다.</p>' : "") + '</details>';
     mountChart(view); if (c) updateReason(); renderReview();
     MeasurementNotation.enhance($("#result-panel"));
+    updateIssueNotice();
   }
   async function overlayControl(button) {
     if (state.reference) { state.reference = null; button.textContent = "대조 원본 겹쳐 보기"; mountChart(); return; }

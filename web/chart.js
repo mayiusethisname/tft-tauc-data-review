@@ -33,8 +33,8 @@
     const touch = matchMedia("(hover: none) and (pointer: coarse)").matches;
     container.innerHTML = `
       <div class="chart-shell">
-        <div class="chart-heading"><div><h3>${safe(config.title)}</h3><p>${touch ? "버튼으로 확대·축소 · 손가락으로 밀어 이동 · 두 번 누르면 전체 보기" : "휠로 확대·축소 · 드래그로 이동 · 두 번 누르면 전체 보기"}</p></div>
-          <div class="chart-controls"><button type="button" data-chart="in" aria-label="그래프 확대">＋ 확대</button><button type="button" data-chart="out" aria-label="그래프 축소">－ 축소</button><button type="button" data-chart="reset">전체 보기</button><span class="zoom-value">100%</span></div></div>
+        <div class="chart-heading"><div><h3>${safe(config.title)}</h3><p>${touch ? "버튼으로 확대·축소 · 손가락으로 밀어 이동 · 두 번 누르면 100%로" : "휠로 확대·축소 · 드래그로 이동 · 두 번 누르면 100%로"}</p></div>
+          <div class="chart-controls"><button type="button" data-chart="in" aria-label="그래프 확대">＋ 확대</button><button type="button" data-chart="out" aria-label="그래프 축소">－ 축소</button><button type="button" data-chart="reset" aria-label="그래프 원래 배율로">↺ 원래 배율</button><span class="zoom-value">100%</span></div></div>
         <div class="chart-legend">${series.filter((s) => s.label).map((s) => `<span><i class="legend-swatch" style="background:${s.color || colors.data}"></i>${safe(s.label)}</span>`).join("")}${config.window ? '<span><i class="legend-swatch window"></i>선택한 구간</span>' : ""}${config.annotations?.length ? '<span><i class="legend-swatch issue"></i>확인할 위치</span>' : ""}</div>
         <div class="chart-stage"><svg role="img" tabindex="0" aria-label="${safe(config.title + ". " + config.xLabel + ", " + config.yLabel + ". 확대·축소 버튼 또는 더하기·빼기 키로 조작할 수 있습니다.")}"></svg></div>
         <div class="chart-readout" aria-live="off">${touch ? "그래프를 누르면 가까운 측정값을 볼 수 있어요." : "그래프 위에 커서를 올리면 가까운 측정값을 볼 수 있어요."}</div>

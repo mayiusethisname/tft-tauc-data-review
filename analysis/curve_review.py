@@ -13,7 +13,7 @@ from statistics import median
 def review_saturation(points: list[dict], candidates: list[dict], drive_sign: int) -> list[dict]:
     findings = []
     if candidates and not any(c.get("reliability_status") == "statistically_reliable_candidate" for c in candidates):
-        findings.append({"code": "unstable_fit", "title": "안정성 기준에 들어온 후보가 없어요", "detail": "직선 적합도·잔차·인접 구간 변화를 함께 확인했습니다.", "action": "후보별 추천 근거를 비교하고 측정 조건과 원곡선을 다시 확인해 보세요."})
+        findings.append({"code": "unstable_fit", "title": "안정성 기준에 들어온 후보가 없어요", "detail": "직선 적합도·잔차·인접 구간 변화를 함께 확인했습니다.", "action": "후보별 추천 근거를 비교하고 측정 조건과 실측 곡선을 다시 확인해 보세요."})
     ordered = sorted(((drive_sign * float(p["x"]), float(p["root_current_A"])) for p in points if math.isfinite(float(p["x"])) and math.isfinite(float(p["root_current_A"]))), key=lambda p: p[0])
     values = [y for _, y in ordered]
     if len(values) < 6:

@@ -121,7 +121,7 @@ def main():
             assert page.locator(".candidate").nth(1).evaluate("(el) => el === document.activeElement")
             assert math.isclose(float(page.locator("#chart-host svg").get_attribute("data-x-span")), preserved_span)
             expect(page.locator(".candidate-delta").nth(1)).to_contain_text("-7.8%")
-            page.get_by_role("button", name="전체 보기", exact=True).click()
+            page.get_by_role("button", name="그래프 원래 배율로", exact=True).click()
             assert page.locator(".metrics").inner_text() != first_metrics
             expect(page.locator(".reason-section h4")).to_contain_text("후보 2")
 
@@ -140,7 +140,7 @@ def main():
             page.mouse.move(box["x"] + box["width"] * .65, box["y"] + box["height"] * .45, steps=5)
             page.mouse.up()
             assert float(svg.get_attribute("data-x-min")) != before_pan
-            page.get_by_role("button", name="전체 보기", exact=True).click()
+            page.get_by_role("button", name="그래프 원래 배율로", exact=True).click()
             assert math.isclose(float(svg.get_attribute("data-x-span")), initial)
             page.locator("#analysis").screenshot(path=str(artifacts / "analysis-desktop.png"))
             expect(page.locator(".sensitivity-panel")).to_contain_text("±0.5 V")
@@ -231,7 +231,7 @@ def main():
             page.mouse.wheel(0, -180)
             expect(svg).not_to_have_attribute("data-x-span", str(before_wheel))
             assert float(svg.get_attribute("data-x-span")) < before_wheel
-            page.get_by_role("button", name="전체 보기", exact=True).click()
+            page.get_by_role("button", name="그래프 원래 배율로", exact=True).click()
             assert math.isclose(float(svg.get_attribute("data-x-span")), tauc_span)
             page.get_by_role("button", name="원본 투과율", exact=True).click()
             expect(svg).to_have_attribute("aria-label", re.compile("원본 투과율"))

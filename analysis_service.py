@@ -27,7 +27,7 @@ from window_evidence import window_evidence  # noqa: E402
 from diagnostics import gap_findings, unknown_column_preview, optical_preview  # noqa: E402
 
 
-ANALYSIS_VERSION = "portfolio-3.4"
+ANALYSIS_VERSION = "portfolio-3.5"
 MAX_UPLOAD_BYTES = 3 * 1024 * 1024
 TFT_MATERIAL_PREFIX = {"a-Si": "aSi", "a-IGZO": "IGZO", "LTPS": "LTPS"}
 TAUC_PROFILE_FILENAME = {
