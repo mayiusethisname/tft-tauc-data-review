@@ -31,7 +31,7 @@ python run.py --port 8765
 
 | 구분 | 파일과 역할 |
 | --- | --- |
-| 이어온 계산 | `profile_8week.py`, `tauc_analysis.py`: 회귀·이동도·Vth·Tauc 변환과 구간 탐색 |
+| 이어온 계산 | `profile_8week.py`, `tauc_analysis.py`: 회귀·이동도·$V_{\mathrm{th}}$·Tauc 변환과 구간 탐색 |
 | 입력 점검 | `tft_file_intake.py`, `tauc_file_intake.py`, `diagnostics.py`: 필수 셀·조건·격자·오류 위치 |
 | 공통 분석 | `analysis_service.py`: 예제/업로드 연결, 실제 조건 기록, 계산량·오류 응답 |
 | 작업 화면 | `web/`: 그래프 조작, 후보 비교와 근거, 도움말, 검토 기록 |

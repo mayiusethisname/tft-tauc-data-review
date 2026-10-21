@@ -80,8 +80,10 @@
       box.appendChild(example);
       const illustration = document.createElement("div");
       illustration.innerHTML = geometryDiagram(node.dataset.w, node.dataset.l);
+      illustration.querySelectorAll("svg text").forEach(text => { text.innerHTML = MeasurementNotation.svg(text.textContent); });
       box.appendChild(illustration);
     }
+    MeasurementNotation.enhance(box);
     box.hidden = false; node.setAttribute("aria-describedby", box.id); position();
   }
   document.addEventListener("pointerover", (event) => {

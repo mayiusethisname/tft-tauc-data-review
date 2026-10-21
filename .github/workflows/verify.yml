@@ -25,6 +25,7 @@ jobs:
       - name: Review state and JavaScript syntax
         run: |
           node tests/test_review_state.cjs
+          node tests/test_notation.cjs
           for file in web/*.js; do node --check "$file"; done
       - name: Public files and links
         run: python -B tools/audit_public_copy.py

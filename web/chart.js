@@ -101,7 +101,7 @@
         ${grid}<g clip-path="url(#${id})">${marks}</g>
         <path d="M${d.left} ${d.top}V${d.top + ph}H${d.left + pw}" fill="none" stroke="#526780" stroke-width="1.3"/>
         <g fill="${colors.ink}" font-family="ui-monospace,Consolas,monospace" font-size="${width < 500 ? 11 : 12}">${labels}</g>
-        <g fill="${colors.ink}" font-family="Pretendard,Malgun Gothic,sans-serif" font-size="13" font-weight="600"><text x="${d.left}" y="23">${safe(config.yLabel)}</text><text x="${d.left + pw / 2}" y="${d.height - 9}" text-anchor="middle">${safe(config.xLabel)}</text></g>`;
+        <g fill="${colors.ink}" font-family="Pretendard,Malgun Gothic,sans-serif" font-size="13" font-weight="600"><text x="${d.left}" y="23">${MeasurementNotation.svg(config.yLabel)}</text><text x="${d.left + pw / 2}" y="${d.height - 9}" text-anchor="middle">${MeasurementNotation.svg(config.xLabel)}</text></g>`;
       container.querySelector(".zoom-value").textContent = Math.round((full.x1 - full.x0) / (view.x1 - view.x0) * 100) + "%";
     }
     function zoom(factor, rx = .5, ry = .5) {
@@ -134,7 +134,7 @@
       }
       const x = view.x0 + (view.x1 - view.x0) * ratios(event).x;
       const nearest = series[0].points.reduce((a, b) => Math.abs(b[0] - x) < Math.abs(a[0] - x) ? b : a);
-      readout.textContent = config.xLabel + ": " + tick(nearest[0]) + "  ·  " + config.yLabel + ": " + tick(nearest[1]);
+      readout.innerHTML = MeasurementNotation.html(config.xLabel + ": " + tick(nearest[0]) + "  ·  " + config.yLabel + ": " + tick(nearest[1]));
     }
     function up() { drag = null; svg.classList.remove("is-dragging"); }
     function reset() { view = { ...full }; draw(); }

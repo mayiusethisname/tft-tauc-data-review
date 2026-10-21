@@ -26,6 +26,8 @@
     const preset = opticalProfiles[material];
     $("#condition-values").textContent = tft ? material + " · W" + width + "/L" + length + " μm · Ci 17.5 nF/cm² 적용" : material + " · 두께 " + preset[0] + " nm · 박막 굴절률 " + preset[1] + " · air 기준선 · glass 기판";
     $("#filename-conditions").textContent = hint ? "파일명에서 읽은 조건: " + hint.material + " · W" + hint.width + "/L" + hint.length + " μm" + (mismatch ? ". 현재 입력과 달라요." : ". 측정 기록과 맞는지 확인해 주세요.") : tft ? "측정 기록을 보고 재료와 W/L을 확인해 주세요. DAT는 MOBILITY 포화 측정을 읽어요." : "이 실험 프로파일과 같은 조건의 JASCO 투과율 CSV를 넣어주세요.";
+    MeasurementNotation.enhance($("#condition-values"));
+    MeasurementNotation.enhance($("#tft-fields"));
     $("#filename-conditions").classList.toggle("condition-mismatch", Boolean(mismatch));
     $("#condition-confirm-label").textContent = mismatch ? "파일명과 다른 위 입력 조건을 확인했고, 이 조건으로 계산할게요" : "파일의 측정 조건이 위 내용과 맞는지 확인했어요";
     $("#analyze-file").disabled = !file || !$("#condition-confirm").checked || Boolean(state.controller);
@@ -231,6 +233,7 @@
     const c = chosen(); if (!c) return;
     const data = reasonData(c), active = data[state.reason] || data[0];
     $("#reason-detail").innerHTML = `<strong>${escape(active[1])}</strong><p>${escape(active[2])}</p><p class="reason-reading">${escape(active[3])}</p>`;
+    MeasurementNotation.enhance($("#reason-detail"));
     document.querySelectorAll("[data-action=reason]").forEach((node) => { const activeTab = Number(node.dataset.index) === state.reason; node.classList.toggle("is-active", activeTab); node.setAttribute("aria-pressed", String(activeTab)); });
   }
   function reasons() {
@@ -288,6 +291,7 @@
       (c ? '<details id="candidate-comparison" class="candidate-comparison" ' + (state.compareOpen || state.selected > 0 ? "open" : "") + '><summary><span><strong>' + (result.domain === "tft" ? "다른 구간과 비교하기" : "모델과 구간별 후보 비교") + '</strong><small>' + (result.domain === "tft" ? "구간 폭 · 잔차 · 민감도 기준" : "전이 모델과 흡수계수 계산 조건을 함께 확인해 주세요.") + '</small></span><span>' + candidates().length + '개 후보</span></summary>' + candidateCards() + '<div class="comparison-outcome"><p role="status">후보 ' + (state.selected + 1) + '을 보고 있어요. ' + escape(delta(c, state.selected)) + '</p><button type="button" class="text-button" data-action="view-selected-chart">선택한 구간 그래프 보기 ↑</button></div></details>' + reasons() : "") +
       '<details class="source-detail"><summary>이 분석에 사용한 자료와 조건</summary><p>' + escape(result.sample?.modification || "선택한 파일의 측정값과 입력한 재료·조건으로 분석했습니다.") + '</p><p>파일: ' + escape(result.filename) + ' · 분석 버전: ' + escape(result.analysis_version) + '</p>' + (result.domain === "tauc" && ready ? '<p>박막 두께 ' + num(result.data.input_metadata?.thickness_nm, 0) + ' nm · 기준선 air · 기판 glass. 계산 조건은 원본 실험 프로파일을 따릅니다.</p>' : "") + '</details>';
     mountChart(view); if (c) updateReason(); renderReview();
+    MeasurementNotation.enhance($("#result-panel"));
   }
   async function overlayControl(button) {
     if (state.reference) { state.reference = null; button.textContent = "대조 원본 겹쳐 보기"; mountChart(); return; }
