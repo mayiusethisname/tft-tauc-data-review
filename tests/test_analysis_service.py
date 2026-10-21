@@ -19,6 +19,36 @@ from examples import get_sample, SAMPLES
 
 
 class PublicAnalysisTests(unittest.TestCase):
+    def test_half_volt_sensitivity_matches_independent_regression(self):
+        for sample_id, sample in SAMPLES.items():
+            if sample['domain'] != 'tft' or sample['kind'] != 'measured':
+                continue
+            result = analyze_request({'sample_id':sample_id})
+            for candidate in result['data']['candidates']:
+                for shifted in candidate['sensitivity']['rows']:
+                    if shifted['status'] != 'calculated':
+                        continue
+                    points = [(p['x'], math.sqrt(abs(p['current_A']))) for p in result['data']['points']
+                              if shifted['start_raw_V']-1e-8 <= p['x'] <= shifted['end_raw_V']+1e-8]
+                    mx = math.fsum(x for x,y in points)/len(points)
+                    my = math.fsum(y for x,y in points)/len(points)
+                    slope = math.fsum((x-mx)*(y-my) for x,y in points)/math.fsum((x-mx)**2 for x,y in points)
+                    intercept = my-slope*mx
+                    expected_mu = 2*slope*slope/(17.5e-9*sample['width_um']/sample['length_um'])
+                    self.assertAlmostEqual(shifted['mu_cm2_Vs'], expected_mu, places=7)
+                    self.assertAlmostEqual(shifted['vth_V'], -intercept/slope, places=8)
+                    self.assertAlmostEqual(shifted['delta_mu_pct'], (expected_mu/candidate['mu_sat_cm2_Vs']-1)*100, places=7)
+
+    def test_perfect_r2_does_not_pass_inconsistent_saturation_bias(self):
+        rows = ['VGS,VDS,IDS']+[f'{i/10},{i/10},{((i/10)+2)**2*1e-6}' for i in range(201)]
+        result = analyze_bytes('tft','aIGZO_W20_L04_Mobility.csv','\n'.join(rows).encode(),
+                               {'material':'a-IGZO','width_um':20,'length_um':4,'conditions_confirmed':True})
+        candidate = result['data']['candidates'][0]
+        self.assertGreater(candidate['r2'], .999999)
+        self.assertFalse(candidate['model_check']['passed'])
+        self.assertAlmostEqual(candidate['model_check']['saturation_margin_min_V'], -2, places=6)
+        self.assertIn('bias_condition', [f['code'] for f in result['findings']])
+
     def test_measured_asset_integrity(self):
         manifest = json.loads((ROOT / "samples/manifest.json").read_text(encoding="utf-8"))
         for item in manifest["files"]:
@@ -31,7 +61,7 @@ class PublicAnalysisTests(unittest.TestCase):
             sample, raw = get_sample(sample_id)
             result = analyze_request({"sample_id": sample_id})
             self.assertEqual(result["status"], "ready")
-            self.assertFalse(result["findings"])
+            self.assertEqual([f['code'] for f in result['findings']], ['endpoint_discontinuity'] if sample_id == 'tft-window' else [])
             self.assertEqual(len(result["data"]["points"]), 201)
             c = result["data"]["candidates"][0]
             rows = list(csv.DictReader(io.StringIO(raw.decode())))
@@ -110,10 +140,10 @@ class PublicAnalysisTests(unittest.TestCase):
     def test_catalog_has_real_files_for_each_material_and_separate_faults(self):
         measured = Counter((s['domain'], s['material']) for s in SAMPLES.values() if s['kind'] == 'measured')
         self.assertEqual(measured, {('tft','a-Si'):3, ('tft','a-IGZO'):3, ('tft','LTPS'):3, ('tauc','a-Si'):1, ('tauc','a-IGZO'):1, ('tauc','Poly-Si'):1})
-        self.assertEqual(sum(s['kind'] == 'modified' for s in SAMPLES.values()), 15)
+        self.assertEqual(sum(s['kind'] == 'modified' for s in SAMPLES.values()), 21)
 
     def test_all_advertised_faults_work_without_sample_metadata(self):
-        codes = {'spike':'isolated_spike', 'gap':'measurement_gap', 'missing_current':'VGS/VDS/IDS 열을 확정할 수 없습니다.', 'short_spectrum':'spectrum_incomplete', 'invalid_percent':'transmittance_out_of_range'}
+        codes = {'spike':'isolated_spike', 'gap':'measurement_gap', 'missing_current':'VGS/VDS/IDS 열을 확정할 수 없습니다.', 'short_spectrum':'spectrum_incomplete', 'invalid_percent':'transmittance_out_of_range', 'range_step':'current_step', 'high_drive_rolloff':'high_drive_rolloff'}
         for key, item in SAMPLES.items():
             sample, raw = get_sample(key)
             uploaded = analyze_request({'domain':sample['domain'], 'filename':sample['filename'], 'config':sample['profile'], 'content_base64':base64.b64encode(raw).decode()})
@@ -122,10 +152,10 @@ class PublicAnalysisTests(unittest.TestCase):
             self.assertEqual(uploaded['findings'], from_demo['findings'], key)
             if item['kind'] == 'measured':
                 self.assertEqual(uploaded['status'], 'ready', key)
-                self.assertFalse(uploaded['findings'], key)
+                self.assertEqual([f['code'] for f in uploaded['findings']], ['endpoint_discontinuity'] if key == 'tft-window' else [], key)
                 continue
             self.assertIn(codes[item['fault']], [f['code'] for f in uploaded['findings']], key)
-            if item['fault'] != 'spike':
+            if item['fault'] in {'gap', 'missing_current', 'short_spectrum', 'invalid_percent'}:
                 self.assertEqual(uploaded['status'], 'needs_confirmation', key)
                 self.assertFalse(uploaded.get('data', {}).get('candidates'), key)
 

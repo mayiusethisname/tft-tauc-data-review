@@ -38,8 +38,8 @@ def main():
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
         port = sock.getsockname()[1]
-    base = f"http://127.0.0.1:{port}"
-    process = subprocess.Popen([sys.executable, str(ROOT / "run.py"), "--port", str(port)], cwd=ROOT, stdout=subprocess.DEVNULL)
+    base = os.environ.get('PORTFOLIO_BASE_URL', f"http://127.0.0.1:{port}").rstrip('/')
+    process = None if os.environ.get('PORTFOLIO_BASE_URL') else subprocess.Popen([sys.executable, str(ROOT / "run.py"), "--port", str(port)], cwd=ROOT, stdout=subprocess.DEVNULL)
     artifacts = Path(tempfile.mkdtemp(prefix="tft-workspace-review-"))
     try:
         for _ in range(60):
@@ -47,7 +47,7 @@ def main():
                 urllib.request.urlopen(base + "/api?action=samples", timeout=1).read()
                 break
             except OSError:
-                if process.poll() is not None:
+                if process is not None and process.poll() is not None:
                     raise RuntimeError("Preview server exited")
                 time.sleep(.1)
         else:
@@ -66,9 +66,12 @@ def main():
             page.on("pageerror", lambda error: errors.append(str(error)))
             page.goto(base)
             expect(page.locator("#sample-list .sample-card")).to_have_count(3)
-            expect(page.locator(".workflow a")).to_have_count(3)
+            expect(page.locator("#chart-host svg")).to_be_visible()
+            assert page.locator("#chart-host svg").bounding_box()["y"] < 700
+            assert page.evaluate("scrollY") == 0
+            expect(page.locator(".sensitivity-panel tbody tr")).to_have_count(3)
             page.screenshot(path=str(artifacts / "input-desktop.png"), full_page=True)
-            for material, expected_name in [("a-Si","aSi"),("LTPS","LTPS"),("a-IGZO","IGZO")]:
+            for material, expected_name in [("a-Si","aSi"),("LTPS","LTPS"),("a-IGZO","aIGZO")]:
                 page.locator('[data-action="material"][data-material="' + material + '"]').click()
                 expect(page.locator("#sample-list .sample-card")).to_have_count(3)
                 expect(page.locator("#sample-list .sample-card h3").first).to_contain_text(expected_name)
@@ -120,10 +123,10 @@ def main():
             page.get_by_role("button", name="전체 보기", exact=True).click()
             assert math.isclose(float(svg.get_attribute("data-x-span")), initial)
             page.locator("#analysis").screenshot(path=str(artifacts / "analysis-desktop.png"))
-            expect(page.locator(".interval-summary")).to_contain_text("7.44")
+            expect(page.locator(".sensitivity-panel")).to_contain_text("±0.5 V")
             svg_exports["normal"] = svg.evaluate("(el) => el.outerHTML")
 
-            colors = page.locator(".sample-card p").first.evaluate("(el) => ({fg:getComputedStyle(el).color,bg:getComputedStyle(el.closest('.sample-card')).backgroundColor})")
+            colors = page.locator(".sample-section-heading p").first.evaluate("(el) => {let parent=el;while(parent && getComputedStyle(parent).backgroundColor==='rgba(0, 0, 0, 0)') parent=parent.parentElement;return {fg:getComputedStyle(el).color,bg:parent?getComputedStyle(parent).backgroundColor:'rgb(255,255,255)'}}")
             assert contrast(colors["fg"], colors["bg"]) >= 4.5, colors
 
             page.locator("#decision-note").fill("인접 구간 변화와 잔차를 비교해 두 번째 후보를 선택")
@@ -174,6 +177,14 @@ def main():
             page.get_by_role("button", name="검토 보류", exact=True).click()
             expect(page.locator(".decision-status")).to_contain_text("보류")
 
+            for sample_id, finding_code, image_key in [('tft-igzo-range_step','current_step','range-step'), ('tft-igzo-high_drive_rolloff','high_drive_rolloff','high-drive-rolloff')]:
+                page.locator('[data-id="'+sample_id+'"]').click()
+                expect(page.locator('[data-finding="'+finding_code+'"]')).to_be_visible()
+                page.locator('[data-finding="'+finding_code+'"] [data-action="focus-finding"]').click()
+                page.locator('[data-action="overlay-control"]').click()
+                expect(page.locator('.chart-legend')).to_contain_text('오류를 넣기 전 실측 원본')
+                svg_exports[image_key] = page.locator('#chart-host svg').evaluate('(el) => el.outerHTML')
+                page.locator('#analysis').screenshot(path=str(artifacts / (image_key+'.png')))
             page.get_by_role("tab", name=re.compile("Tauc 광학")).click()
             expect(page.locator("#sample-list .sample-card")).to_have_count(1)
             page.locator('[data-id="tauc-clear"]').click()
@@ -225,7 +236,7 @@ def main():
 
             page.get_by_role("tab", name=re.compile("TFT 전기")).click()
             with page.expect_download() as download_info:
-                page.locator(".sample-card").first.get_by_role("link", name="CSV 내려받기").click()
+                page.locator(".sample-card").first.get_by_role("link", name="CSV 받기").click()
             assert download_info.value.suggested_filename.endswith(".csv")
 
             page.locator("#upload-box summary").click()
@@ -268,6 +279,7 @@ def main():
             expect(page.locator(".candidate")).to_have_count(3)
 
             page.set_viewport_size({"width":390,"height":844})
+            page.locator("#data-drawer summary.drawer-summary").click()
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 1")
             assert page.locator("body").evaluate("(el) => parseFloat(getComputedStyle(el).fontSize)") >= 15
             expect(page.locator("#toast")).not_to_have_class(re.compile("is-visible"))
@@ -292,8 +304,8 @@ def main():
             touch_context = browser.new_context(viewport={"width":390,"height":844}, is_mobile=True, has_touch=True, reduced_motion="reduce")
             touch_page = touch_context.new_page()
             touch_page.goto(base)
-            touch_page.locator('[data-id="tft-clear"]').click()
             expect(touch_page.locator(".candidate")).to_have_count(3)
+            assert touch_page.locator("#chart-host svg").bounding_box()["y"] < 800
             expect(touch_page.locator(".chart-heading")).to_contain_text("버튼으로 확대·축소")
             expect(touch_page.locator(".chart-readout")).to_contain_text("그래프를 누르면")
             touch_page.locator("#chart-host svg").tap()
@@ -302,16 +314,18 @@ def main():
             touch_context.close()
             browser.close()
         if os.environ.get("PORTFOLIO_EXPORT_SVG") == "1":
-            print("SVG_ARTIFACTS=" + json.dumps(svg_exports))
+            wanted = os.environ.get('PORTFOLIO_EXPORT_ONLY','').split(',')
+            print("SVG_ARTIFACTS=" + json.dumps({k:v for k,v in svg_exports.items() if not wanted[0] or k in wanted}))
             print("API_EVENTS", api_events)
         print("WORKSPACE_BROWSER_FLOW_OK")
         print("Screenshots:", artifacts)
     finally:
-        process.terminate()
-        try:
-            process.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            process.kill()
+        if process is not None:
+            process.terminate()
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
 
 
 if __name__ == "__main__":

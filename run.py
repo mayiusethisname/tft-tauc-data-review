@@ -80,7 +80,10 @@ class PortfolioHandler(SimpleHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+            pass  # The browser cancelled a replaced analysis request.
 
     def log_message(self, format: str, *args: object) -> None:
         return

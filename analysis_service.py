@@ -7,6 +7,7 @@ import csv
 import hashlib
 import json
 import math
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -22,10 +23,11 @@ import tauc_analysis  # noqa: E402
 import tauc_file_intake  # noqa: E402
 import tft_file_intake  # noqa: E402
 from curve_review import review_saturation  # noqa: E402
+from window_evidence import window_evidence  # noqa: E402
 from diagnostics import gap_findings, unknown_column_preview, optical_preview  # noqa: E402
 
 
-ANALYSIS_VERSION = "portfolio-3.1"
+ANALYSIS_VERSION = "portfolio-3.2"
 MAX_UPLOAD_BYTES = 3 * 1024 * 1024
 TFT_MATERIAL_PREFIX = {"a-Si": "aSi", "a-IGZO": "IGZO", "LTPS": "LTPS"}
 TAUC_PROFILE_FILENAME = {
@@ -97,6 +99,10 @@ def _conditions(domain: str, filename: str, config: dict) -> dict:
             dimensions[key] = int(number)
         values = {"material": material, **dimensions, "polarity": config.get("polarity", "auto")}
         hm, hw, hl = profile.material_and_dimensions(Path(filename))
+        structured = re.match(r"^(aIGZO|aSi|LTPS)_W(\d{1,2})_?L(\d{1,2})(?:_|\.)", filename, re.I)
+        if structured:
+            hm = {"aigzo":"a-IGZO", "asi":"a-Si", "ltps":"LTPS"}[structured[1].lower()]
+            hw, hl = int(structured[2]), int(structured[3])
         if hm != "unknown" and hw and hl:
             hint = {"material": hm, "width_um": hw, "length_um": hl}
     else:
@@ -189,6 +195,9 @@ def _tft_candidates(
             "r2": r2,
             "points": len(selected),
         }
+        candidate.update(window_evidence(points, candidate, intake_result.width_um, intake_result.length_um))
+        if not candidate["model_check"]["passed"]:
+            candidate["reliability_status"] = "review_required"
     return candidates, points
 
 
@@ -273,6 +282,10 @@ def _analyze_tft(
     }
     drive_sign = int(candidates[0]["drive_sign"]) if candidates else (-1 if result.material == "LTPS" else 1)
     payload["findings"] = [*payload["findings"], *review_saturation(points, candidates, drive_sign)]
+    if candidates and not candidates[0]["model_check"]["passed"]:
+        payload["findings"].append({"code":"bias_condition", "title":"포화 모델의 바이어스 조건 확인 필요",
+            "detail":"VGS=VDS 매핑과 피팅한 Vth를 대입했을 때 VDS ≥ VGS−Vth 조건이 충족되지 않습니다.",
+            "action":"연결 조건과 측정 기록을 확인한 뒤 이 구간의 이동도 사용 여부를 결정해 주세요."})
     gaps = gap_findings(points)
     if gaps:
         payload["findings"].extend(gaps)

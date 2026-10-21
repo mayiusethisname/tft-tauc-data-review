@@ -63,9 +63,11 @@ python tests/browser_smoke.py
 
 다른 환경은 PORTFOLIO_BROWSER 환경변수로 브라우저 실행 파일을 지정할 수 있습니다. 화면 캡처는 실행 결과에 표시되는 임시 폴더에 저장됩니다.
 
+배포 후에는 `PORTFOLIO_BASE_URL`에 공개 주소를 넣어 같은 브라우저 흐름을 확인할 수 있습니다. 이 경우 로컬 서버는 시작하지 않습니다.
+
 ## Vercel 구성
 
-이 폴더를 프로젝트 루트로 연결하는 구성을 `vercel.json`과 `api/index.py`에 두었습니다. 서버 함수에는 분석 모듈과 샘플 CSV를 함께 포함합니다. 실제 배포 URL은 배포 후 README에 추가합니다.
+공개 주소는 [tft-tauc-data-review.vercel.app](https://tft-tauc-data-review.vercel.app/)입니다. `vercel.json`의 framework는 null(Other)로 두고, 정적 화면과 `api/index.py`의 Python 함수를 함께 배포합니다. 함수에는 분석 모듈과 샘플 CSV를 포함합니다.
 
 원본 파일 크기는 3 MB 이하입니다. Base64 전송 크기와 함수 본문 제한을 고려한 설정입니다. [Python API 경로](https://vercel.com/docs/functions/runtimes/python/api-directory), [함수 제한](https://vercel.com/docs/functions/limitations)
 

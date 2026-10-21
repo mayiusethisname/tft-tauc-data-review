@@ -7,6 +7,7 @@ This module returns evidence and a next action for the working UI.
 from __future__ import annotations
 
 import math
+from statistics import median
 
 
 def review_saturation(points: list[dict], candidates: list[dict], drive_sign: int) -> list[dict]:
@@ -21,6 +22,32 @@ def review_saturation(points: list[dict], candidates: list[dict], drive_sign: in
     if not spread:
         return findings
     changes = [b - a for a, b in zip(values, values[1:])]
+    for i in range(5, len(changes)-5):
+        jump = changes[i]
+        neighbors = changes[i-5:i] + changes[i+1:i+6]
+        typical = median(abs(v) for v in neighbors)
+        if abs(jump) >= .04 * spread and abs(jump) > 8 * max(typical, spread * 1e-6):
+            if any(jump*v < 0 and abs(v) > abs(jump)*.5 for v in (changes[i-1], changes[i+1])):
+                continue
+            voltage = ordered[i+1][0] * drive_sign
+            findings.append({"code":"current_step", "title":"전류 곡선에 단차가 있습니다",
+                "detail":f"{voltage:.2f} V 부근의 변화가 주변 10개 간격 중앙값의 8배를 넘습니다.",
+                "action":"해당 전압의 측정 레인지·연결 상태와 원자료를 확인해 주세요.",
+                "voltages":[voltage]})
+            break
+    peak_index = max(range(len(values)), key=values.__getitem__)
+    tail_level = median(values[-5:])
+    if len(values)*.5 <= peak_index < len(values)-5 and values[peak_index]-tail_level >= .08*spread:
+        bounds = sorted((ordered[peak_index][0]*drive_sign, ordered[-1][0]*drive_sign))
+        findings.append({"code":"high_drive_rolloff", "title":"고전압 구간에서 전류가 감소합니다",
+            "detail":f"최대점과 마지막 5점 중앙값의 √|IDS| 차이가 전체 범위의 {(values[peak_index]-tail_level)/spread*100:.1f}%입니다.",
+            "action":"표시 구간의 연결·접촉 상태와 스윕 기록을 확인하고, 피팅 범위를 비교해 주세요.",
+            "ranges":[bounds]})
+    if abs(values[-1] - median(values[-5:-1])) >= .2*spread:
+        findings.append({"code":"endpoint_discontinuity", "title":"마지막 측정점의 전류 확인 필요",
+            "detail":"종료점의 √|IDS|가 직전 4점 중앙값과 전체 범위의 20% 이상 차이 납니다.",
+            "action":"마지막 점의 원자료와 스윕 종료 기록을 확인해 주세요.",
+            "voltages":[ordered[-1][0]*drive_sign]})
     meaningful = [v for v in changes if abs(v) >= spread * .02]
     if len(meaningful) >= 5 and sum(v < 0 for v in meaningful) / len(meaningful) >= .15:
         findings.append({"code": "curve_reversal", "title": "전류가 구동 방향에서 반복해 되돌아가요", "detail": "전체 변화 폭의 2% 이상인 변화 중 감소 방향이 15% 이상입니다.", "action": "스윕 방향과 극성, 측정 중 흔들림을 확인해 보세요."})

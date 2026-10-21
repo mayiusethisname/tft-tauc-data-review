@@ -13,7 +13,7 @@ def add_tft(sample_id: str, material: str, prefix: str, width: int, length: int,
         "id": sample_id, "domain": "tft", "kind": "measured", "material": material,
         "title": f"{material} · W{width}/L{length}",
         "description": f"채널 폭 {width} μm, 길이 {length} μm의 실측 곡선이에요.",
-        "filename": f"{prefix}{width:02d}{length:02d}.csv", "asset": asset,
+        "filename": f"{ {'a-Si':'aSi','a-IGZO':'aIGZO','LTPS':'LTPS'}[material]}_W{width:02d}_L{length:02d}_Mobility.csv", "asset": asset,
         "width_um": width, "length_um": length,
         "profile": {"material": material, "width_um": width, "length_um": length, "conditions_confirmed": True},
         "source": f"TFT 실험자료 · {material} W{width}/L{length} · MOBILITY 발췌",
@@ -39,6 +39,8 @@ FAULTS = {
     "spike": ("전류 한 점이 튀는 파일", "튀는 점의 위치와 주변 측정값을 비교해 보세요.", "전류 한 점을 원본 최대 절댓값의 15배로 바꿨습니다."),
     "gap": ("중간 측정점이 빠진 파일", "측정 간격이 벌어진 곳을 그래프에서 찾아보세요.", "중앙의 연속된 측정점 11개를 삭제했습니다."),
     "missing_current": ("전류 열 이름이 빠진 파일", "숫자는 있지만 어떤 물리량인지 확인이 필요한 경우예요.", "IDS 열 이름만 UNKNOWN으로 바꿨습니다. 숫자는 유지했습니다."),
+    "range_step": ("전류 단차", "연속 곡선의 중간부터 전류가 일정량 올라간 예제입니다.", "구동 범위 60% 이후 IDS에 원본 최대 |IDS|의 20%를 같은 부호로 더했습니다."),
+    "high_drive_rolloff": ("고전압 전류 감쇠", "구동 전압이 큰 구간에서 전류가 낮아지는 예제입니다.", "구동 범위 65% 이후 IDS에 1→0.15의 선형 감쇠 계수를 곱했습니다."),
     "short_spectrum": ("측정 범위가 잘린 파일", "실제로 남은 구간과 헤더가 요구하는 범위를 비교해요.", "4,001점 헤더는 두고 300~380 nm의 801개 점만 남겼습니다."),
     "invalid_percent": ("투과율이 범위를 벗어난 파일", "100% 기준선 밖의 측정점을 확인해 보세요.", "400 nm의 투과율 한 점을 120%로 바꿨습니다."),
 }
@@ -59,7 +61,7 @@ def add_fault(sample_id: str, control_id: str, fault: str) -> None:
 
 
 for material, control, key in [("a-Si", "tft-asi-06", "asi"), ("a-IGZO", "tft-clear", "igzo"), ("LTPS", "tft-window", "ltps")]:
-    for fault in ("spike", "gap", "missing_current"):
+    for fault in ("spike", "gap", "missing_current", "range_step", "high_drive_rolloff"):
         sample_id = {("igzo", "spike"): "tft-spike", ("igzo", "missing_current"): "tft-hold"}.get((key, fault), f"tft-{key}-{fault}")
         add_fault(sample_id, control, fault)
 
@@ -87,6 +89,22 @@ def get_sample(sample_id: str) -> tuple[dict, bytes]:
     fault = sample.get("fault")
     if fault == "missing_current":
         raw = raw.replace(b"VGS,VDS,IDS", b"VGS,VDS,UNKNOWN", 1)
+    elif fault in {"range_step", "high_drive_rolloff"}:
+        rows = raw.decode("utf-8").splitlines()
+        cells = [row.split(",") for row in rows[1:]]
+        sign = -1 if sample["material"] == "LTPS" else 1
+        drives = [sign * float(row[0]) for row in cells]
+        lo, hi = min(drives), max(drives)
+        peak = max(abs(float(row[2])) for row in cells)
+        for row, drive in zip(cells, drives):
+            fraction = (drive-lo)/(hi-lo)
+            current = float(row[2])
+            if fault == "range_step" and fraction >= .6:
+                current += (1 if current >= 0 else -1) * peak * .2
+            if fault == "high_drive_rolloff" and fraction > .65:
+                current *= 1 - .85 * (fraction-.65)/.35
+            row[2] = format(current, ".17g")
+        raw = (rows[0] + "\n" + "\n".join(",".join(row) for row in cells) + "\n").encode()
     elif fault in {"spike", "gap"}:
         rows = raw.decode("utf-8").splitlines()
         index = 1 + (len(rows) - 1) // 2

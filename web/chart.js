@@ -33,7 +33,7 @@
     const readout = container.querySelector(".chart-readout");
     function dimensions() {
       width = Math.max(280, stage.clientWidth);
-      return { width, height: width < 600 ? 320 : 390, left: width < 600 ? 69 : 86, right: 24, top: 42, bottom: 57 };
+      return { width, height: width < 600 ? 260 : 330, left: width < 600 ? 69 : 86, right: 24, top: 42, bottom: 57 };
     }
     function draw() {
       const d = dimensions(), pw = d.width - d.left - d.right, ph = d.height - d.top - d.bottom;
