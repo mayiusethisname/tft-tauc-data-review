@@ -66,9 +66,9 @@ MOBILITY 측정의 $V_{\mathrm{D}}$·$I_{\mathrm{D}}$를 사용합니다. 이 �
 <details>
 <summary>단순 반사 보정 모델의 흡수계수</summary>
 
-계면 반사율은 $R_{af}=[(n_a-n_f)/(n_a+n_f)]^2$, $R_{fg}=[(n_f-n_g)/(n_f+n_g)]^2$로 계산합니다. 여기서 $a$, $f$, $g$는 각각 공기·박막·유리 조건을 구분합니다.
+계면 반사율은 $R_{\mathrm{af}}=[(n_{\mathrm{a}}-n_{\mathrm{f}})/(n_{\mathrm{a}}+n_{\mathrm{f}})]^2$, $R_{\mathrm{fg}}=[(n_{\mathrm{f}}-n_{\mathrm{g}})/(n_{\mathrm{f}}+n_{\mathrm{g}})]^2$로 계산합니다. 여기서 $a$, $f$, $g$는 각각 공기·박막·유리 조건을 구분합니다.
 
-$A=(1-R_{af})(1-R_{fg})$, $B=R_{af}R_{fg}$로 놓으면 구현된 정방향 모델은 $T=Ax/(1-Bx^2)$입니다.
+$A=(1-R_{\mathrm{af}})(1-R_{\mathrm{fg}})$, $B=R_{\mathrm{af}}R_{\mathrm{fg}}$로 놓으면 구현된 정방향 모델은 $T=Ax/(1-Bx^2)$입니다.
 
 이를 역산한 $x=2T/[A+\sqrt{A^2+4BT^2}]$에서 $\alpha=-\ln(x)/d$를 계산합니다. 상수 굴절률을 사용하는 단순 계면 반사 모델이며, 투과율 기반 근사와 별도의 후보로 표시합니다.
 
