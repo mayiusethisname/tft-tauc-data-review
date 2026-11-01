@@ -22,6 +22,11 @@
 
 ## 분석 흐름
 
+![측정 파일 확인부터 TFT·Tauc 분석과 검토 기록까지의 흐름](docs/assets/analysis-flow.svg)
+
+<details>
+<summary>다이어그램 원본 보기</summary>
+
 ```mermaid
 flowchart TD
     A["실측 예제 또는 내 측정 파일"] --> B["스키마·단위·측정 조건 확인"]
@@ -36,6 +41,8 @@ flowchart TD
     G --> K["후보 선택 · 실측 곡선 확인 · 검토 기록"]
     J --> K
 ```
+
+</details>
 
 ## 샘플 구성
 
